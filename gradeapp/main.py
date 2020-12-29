@@ -16,7 +16,7 @@ hist_source = ColumnDataSource(
     data=dict(top=[], left=[], right=[], bin_value=[]))
 
 # Make the figure
-plot = figure(sizing_mode='scale_both', tools=[],
+plot = figure(sizing_mode='scale_both', tools=['save'],
               x_range=(0, course_details['maxmarks']), y_range=(0, 10))
 plot.xaxis.axis_label = "Score"
 plot.yaxis.axis_label = "Count"
@@ -201,7 +201,7 @@ def load_course_data():
     course_details['maxmarks'] = maxmarksinput.value
     course_details['title'] = coursetitleinput.value
     excelfilecontents = fileinput.value
-    hist_data = prepare_histogram_data_source(excelfilecontents, maxmarks)
+    hist_data = prepare_histogram_data_source(excelfilecontents, course_details['maxmarks'])
 
     # Get some stats
     total_students, average_marks = get_marks_stats(excelfilecontents)
@@ -237,6 +237,16 @@ def load_course_data():
     plot.y_range.end = ymax
     average_marker.location = average_marks
 
+    # Update the slider limits
+    a_slider.end = course_details['maxmarks']
+    am_slider.end = course_details['maxmarks']
+    b_slider.end = course_details['maxmarks']
+    bm_slider.end = course_details['maxmarks']
+    c_slider.end = course_details['maxmarks']
+    cm_slider.end = course_details['maxmarks']
+    d_slider.end = course_details['maxmarks']
+    e_slider.end = course_details['maxmarks']
+
     # Update grade markers
     update_plot()
 
@@ -251,7 +261,7 @@ def calculate_stats():
     """
     counts = {}
     mgpa = 0.0
-    upperlimit = maxmarks + 1
+    upperlimit = course_details['maxmarks'] + 1
     for grade, data in grades_data.items():
         if not data['Enabled']:
             continue
@@ -366,7 +376,7 @@ def update_grade_cutoff(attr, old, new, grade=None):
         highercutoff = grades_data[g]['CutOff']
         if highercutoff < lowercutoff:
             # Inconsistent higher cut-off detected. Fix it.
-            highercutoff = min(maxmarks, lowercutoff + 2)
+            highercutoff = min(course_details['maxmarks'], lowercutoff + 2)
             grades_data[g]['CutOff'] = highercutoff
 
         # Update the lowercutoff for the next loop iteration
